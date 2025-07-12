@@ -16,8 +16,6 @@ import java.util.Map;
 
 public class VendedorDaoJDBC implements VendedorDao {
 
-    private DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-
     private Connection conn;
 
     public VendedorDaoJDBC(Connection conn) {
@@ -66,7 +64,25 @@ public class VendedorDaoJDBC implements VendedorDao {
 
     @Override
     public void update(Vendedor vendedor) {
+        PreparedStatement pstm = null;
 
+        try {
+            pstm = conn.prepareStatement(
+                    "UPDATE vendedor SET Nome=?, Email= ?, DataAniversarrio= ?, SalarioBase= ?, DepartamentoId= ? WHERE Id = ?;");
+
+            pstm.setString(1, vendedor.getNome());
+            pstm.setString(2, vendedor.getEmail());
+            pstm.setDate(3, Date.valueOf(vendedor.getDataNascimento()));
+            pstm.setDouble(4, vendedor.getSalarioBase());
+            pstm.setInt(5, vendedor.getDepartamento().getId());
+            pstm.setInt(6, vendedor.getId());
+
+            pstm.executeUpdate();
+        } catch (SQLException e) {
+            throw new DbException(e.getMessage());
+        } finally {
+            DB.fecharStatement(pstm);
+        }
     }
 
     @Override
@@ -91,8 +107,7 @@ public class VendedorDaoJDBC implements VendedorDao {
 
             if (rs.next()) {
                 Departamento dep = instanciarDepartamento(rs);
-                Vendedor obj = instanciarVendedor(rs, dep);
-                return obj;
+                return instanciarVendedor(rs, dep);
             }
             return null;
         } catch (SQLException e) {
