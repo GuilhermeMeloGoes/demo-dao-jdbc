@@ -24,5 +24,11 @@ public class Programa {
         for (Vendedor v : listaDepartamentos) {
             System.out.println(v);
         }
+
+        System.out.println("\n\n=== TESTE 3: Vendedor findAll ===");
+        List<Vendedor> listaCompleta = vendedorDao.findAll();
+        for (Vendedor v : listaCompleta) {
+            System.out.println(v);
+        }
     }
 }

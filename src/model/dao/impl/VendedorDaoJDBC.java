@@ -88,9 +88,41 @@ public class VendedorDaoJDBC implements VendedorDao {
 
     @Override
     public List<Vendedor> findAll() {
+        PreparedStatement pstm = null;
+        ResultSet rs = null;
 
+        try {
+            pstm = conn.prepareStatement(
+                    "SELECT vendedor.*, departamento.nome as DepNome " +
+                            "FROM vendedor INNER JOIN departamento " +
+                            "ON vendedor.DepartamentoId = departamento.Id " +
+                            "ORDER BY Nome;"
+            );
 
-        return List.of();
+            rs = pstm.executeQuery();
+
+            List<Vendedor> listaVendedores = new ArrayList<>();
+            Map<Integer, Departamento> map = new HashMap<>();
+
+            while (rs.next()) {
+
+                Departamento dep = map.get(rs.getInt("DepartamentoId"));
+
+                if (dep == null) {
+                    dep = instanciarDepartamento(rs);
+                    map.put(rs.getInt("DepartamentoId"), dep);
+                }
+
+                Vendedor obj = instanciarVendedor(rs, dep);
+                listaVendedores.add(obj);
+            }
+            return listaVendedores;
+        } catch (SQLException e) {
+            throw new DbException(e.getMessage());
+        } finally {
+            DB.fecharStatement(pstm);
+            DB.fecharResultSet(rs);
+        }
     }
 
     @Override
@@ -132,7 +164,5 @@ public class VendedorDaoJDBC implements VendedorDao {
             DB.fecharStatement(pstm);
             DB.fecharResultSet(rs);
         }
-
-
     }
 }
