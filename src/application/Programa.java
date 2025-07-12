@@ -1,5 +1,8 @@
 package application;
 
+import model.dao.DaoFactory;
+import model.dao.VendedorDao;
+import model.dao.impl.VendedorDaoJDBC;
 import model.entities.Departamento;
 import model.entities.Vendedor;
 
@@ -11,6 +14,8 @@ public class Programa {
         Departamento dep = new Departamento(1, "Livros");
 
         Vendedor ven = new Vendedor(1, "Guilherme ", "gui@gmail.com", LocalDate.now(), 3000.00, dep);
+
+        VendedorDao vendedorDao = DaoFactory.createVendedorDao();
 
         System.out.println(dep);
         System.out.println(ven);
