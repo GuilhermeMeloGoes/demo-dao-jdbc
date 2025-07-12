@@ -2,11 +2,12 @@ package application;
 
 import model.dao.DaoFactory;
 import model.dao.VendedorDao;
-import model.dao.impl.VendedorDaoJDBC;
+
 import model.entities.Departamento;
 import model.entities.Vendedor;
 
 import java.time.LocalDate;
+import java.util.Date;
 import java.util.List;
 
 public class Programa {
@@ -30,5 +31,10 @@ public class Programa {
         for (Vendedor v : listaCompleta) {
             System.out.println(v);
         }
+
+        System.out.println("\n\n=== TESTE 4: Vendedor insert ===");
+        Vendedor vendedor1 = new Vendedor(null, "Greg", "greg@gmail.com", LocalDate.now(), 4000.00, departamento);
+        vendedorDao.insert(vendedor1);
+        System.out.println("\n Vendedor inserido! Novo id = " + vendedor1.getId());
     }
 }

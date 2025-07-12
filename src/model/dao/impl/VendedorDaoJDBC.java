@@ -6,16 +6,17 @@ import model.dao.VendedorDao;
 import model.entities.Departamento;
 import model.entities.Vendedor;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class VendedorDaoJDBC implements VendedorDao {
+
+    private DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     private Connection conn;
 
@@ -25,6 +26,41 @@ public class VendedorDaoJDBC implements VendedorDao {
 
     @Override
     public void insert(Vendedor vendedor) {
+
+        PreparedStatement pstm = null;
+
+        try {
+            pstm = conn.prepareStatement(
+                    "INSERT INTO vendedor " +
+                            "(Nome, Email, DataAniversarrio, SalarioBase, DepartamentoId) " +
+                            "VALUES " +
+                            "(?,?,?,?,?); ",
+                    Statement.RETURN_GENERATED_KEYS);
+
+            pstm.setString(1, vendedor.getNome());
+            pstm.setString(2, vendedor.getEmail());
+            pstm.setDate(3, Date.valueOf(vendedor.getDataNascimento()));
+            pstm.setDouble(4, vendedor.getSalarioBase());
+            pstm.setInt(5, vendedor.getDepartamento().getId());
+
+            int linhasAfetadas = pstm.executeUpdate();
+
+            if (linhasAfetadas > 0) {
+                ResultSet rs = pstm.getGeneratedKeys();
+                if (rs.next()) {
+                    int id = rs.getInt(1);
+                    vendedor.setId(id);
+                }
+                DB.fecharResultSet(rs);
+            } else {
+                throw new DbException("Erro ao inserir vendedor, nenhuma linha foi afetada.");
+            }
+
+        } catch (SQLException e) {
+            throw new DbException(e.getMessage());
+        } finally {
+            DB.fecharStatement(pstm);
+        }
 
     }
 
